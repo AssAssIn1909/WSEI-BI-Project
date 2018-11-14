@@ -3,7 +3,20 @@ GO
 
 USE CarDealer
 GO
+CREATE SCHEMA [HR];
+GO
+CREATE SCHEMA [Service];
+GO
 
+DROP TABLE IF EXISTS [HR].[EmployeePosition]
+DROP TABLE IF EXISTS [HR].[EmployeeTeam]
+DROP TABLE IF EXISTS [HR].[Team]
+DROP TABLE IF EXISTS [HR].[Position]
+DROP TABLE IF EXISTS [HR].[Salary]
+DROP TABLE IF EXISTS [Service].[Salary]
+DROP TABLE IF EXISTS [Service].[Status]
+DROP TABLE IF EXISTS [Service].[Order]
+DROP TABLE IF EXISTS [Service].[OrderHistory]
 DROP TABLE IF EXISTS [dbo].[Order]
 DROP TABLE IF EXISTS [dbo].[PriceList]
 DROP TABLE IF EXISTS [dbo].[Model]
@@ -11,6 +24,8 @@ DROP TABLE IF EXISTS [dbo].[Brand]
 DROP TABLE IF EXISTS [dbo].[Client]
 DROP TABLE IF EXISTS [dbo].[Employee]
 DROP TABLE IF EXISTS [dbo].[Address]
+DROP SCHEMA IF EXISTS [HR]
+DROP SCHEMA IF EXISTS [Service]
 GO
 
 CREATE TABLE [dbo].[Address]
@@ -115,4 +130,103 @@ CREATE TABLE [dbo].[Order]
 	CONSTRAINT FK_Order_Client		FOREIGN KEY (Cli_Id)		REFERENCES Client (Cli_Id) ON DELETE SET DEFAULT,
 	CONSTRAINT FK_Order_Employee	FOREIGN KEY (Emp_Id)		REFERENCES Employee (Emp_Id) ON DELETE SET DEFAULT,
 	CONSTRAINT CH_Price				CHECK		(Ord_Price > 0)
+);
+GO
+
+CREATE TABLE [HR].[Position]
+(
+	Pos_Position		nvarchar(50)		NOT NULL UNIQUE,
+
+	CONSTRAINT PK_Posiition			PRIMARY KEY (Pos_Position)
+);
+GO
+
+CREATE TABLE [HR].[Team]
+(
+	Tem_Name		nvarchar(50)		NOT NULL UNIQUE,
+
+	CONSTRAINT PK_Team		PRIMARY KEY (Tem_Name)
+);
+GO
+
+CREATE TABLE [HR].[EmployeeTeam]
+(
+	Emp_Id		int				NOT NULL,
+	Tem_Name	nvarchar(50)	NOT NULL,
+
+	CONSTRAINT PK_EmployeeTeam				PRIMARY KEY (Emp_Id, Tem_Name),
+	CONSTRAINT FK_EmployeeTeam_Employee		FOREIGN KEY (Emp_Id)			REFERENCES	[dbo].[Employee] (Emp_Id),
+	CONSTRAINT FK_EmployeeTeam_Team			FOREIGN KEY (Tem_Name)			REFERENCES	[HR].[Team] (Tem_Name)
+);
+GO
+
+CREATE TABLE [HR].[EmployeePosition]
+(
+	Emp_Id			int				NOT NULL,
+	Pos_Position	nvarchar(50)	NOT NULL,
+	Eps_DateFrom	date			NOT NULL,
+	Eps_DateTo		date			NULL,
+
+	CONSTRAINT PK_EmployeePosition			PRIMARY KEY (Emp_Id, Pos_Position),
+	CONSTRAINT FK_EmployeePosition_Employee	FOREIGN KEY (Emp_Id)				REFERENCES [dbo].[Employee] (Emp_Id),
+	CONSTRAINT FK_EmployeePosition_Position	FOREIGN KEY (Pos_Position)			REFERENCES	[HR].[Position]	(Pos_Position),
+	CONSTRAINT CH_EmployeePosition_DateTo	CHECK (Eps_DateTo > Eps_DateFrom)
+);
+GO
+
+CREATE TABLE [HR].[Salary]
+(
+	Sal_Id			int				NOT NULL,
+	Emp_Id			int				NOT NULL,
+	Sal_Amount		money			NOT NULL,
+	Sal_Type		nvarchar(6)		NOT NULL,
+	Sal_DateFrom	date			NOT NULL,
+	Sal_DateTo		date			NULL,
+
+	CONSTRAINT PK_Salary			PRIMARY KEY (Sal_Id),
+	CONSTRAINT FK_Salary_Employee	FOREIGN KEY (Emp_Id)	REFERENCES Employee (Emp_Id),
+	CONSTRAINT CH_Salaray_Type		CHECK (Sal_Type IN ('Premia', 'Pensja'))
+);
+GO
+
+CREATE TABLE [Service].[Service]
+(
+	Ser_Id		int				NOT NULL,
+	Ser_Name	nvarchar(70)	NOT NULL,
+	
+	CONSTRAINT PK_Service	PRIMARY KEY (Ser_Id)
+);
+GO
+CREATE TABLE [Service].[Status]
+(
+	Sta_Name	nvarchar(30) NOT NULL,
+
+	CONSTRAINT PK_Status PRIMARY KEY (Sta_Name)
+);
+GO
+
+CREATE TABLE [Service].[Order]
+(
+	Srd_Id		int				NOT NULL,
+	Mod_Id		int				NOT NULL,
+	Ser_Id		int				NOT NULL,
+	
+	CONSTRAINT PK_SerOrder				PRIMARY KEY (Srd_Id),
+	CONSTRAINT FK_SerOrder_Model		FOREIGN KEY (Mod_Id)	REFERENCES [dbo].[Model] (Mod_Id),
+	CONSTRAINT FK_SerOrder_Service		FOREIGN KEY (Ser_Id)	REFERENCES [Service].[Service] (Ser_Id)
+);
+GO
+
+CREATE TABLE [Service].[OrderHistory]
+(
+	Orh_Id		int				NOT NULL,
+	Srd_Id		int				NOT NULL,
+	Emp_Id		int				NOT NULL,
+	Sta_Name	nvarchar(30)	NOT NULL,
+	Orh_Date	datetime		NOT NULL	DEFAULT GETDATE(),
+
+	CONSTRAINT PK_OrderHistory				PRIMARY KEY (Orh_Id),
+	CONSTRAINT FK_OrderHistory_SerOrder		FOREIGN KEY (Srd_Id)	REFERENCES [Service].[Order] (Srd_Id),
+	CONSTRAINT FK_OrderHistory_Employee		FOREIGN KEY	(Emp_Id)	REFERENCES [dbo].[Employee]	(Emp_Id),
+	CONSTRAINT FK_OrderHistory_SerStatus	FOREIGN KEY (Sta_Name)	REFERENCES [Service].[Status] (Sta_Name),
 )
