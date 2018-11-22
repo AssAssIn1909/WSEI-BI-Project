@@ -162,7 +162,7 @@ GO
 
 CREATE TABLE [HR].[EmployeePosition]
 (
-	Emp_Id			int				NOT NULL,
+	Emp_Id			int				NOT NULL, 
 	Pos_Position	nvarchar(50)	NOT NULL,
 	Eps_DateFrom	date			NOT NULL,
 	Eps_DateTo		date			NULL,
