@@ -210,6 +210,7 @@ CREATE TABLE [Service].[Order]
 	Srd_Id		int				NOT NULL,
 	Mod_Id		int				NOT NULL,
 	Ser_Id		int				NOT NULL,
+	Prize		money			NOT NULL,
 	
 	CONSTRAINT PK_SerOrder				PRIMARY KEY (Srd_Id),
 	CONSTRAINT FK_SerOrder_Model		FOREIGN KEY (Mod_Id)	REFERENCES [dbo].[Model] (Mod_Id),
