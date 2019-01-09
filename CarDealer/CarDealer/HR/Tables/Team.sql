@@ -1,0 +1,6 @@
+﻿CREATE TABLE [HR].[Team] (
+    [Tem_Name] NVARCHAR (50) NOT NULL,
+    CONSTRAINT [PK_Team] PRIMARY KEY CLUSTERED ([Tem_Name] ASC),
+    UNIQUE NONCLUSTERED ([Tem_Name] ASC)
+);
+

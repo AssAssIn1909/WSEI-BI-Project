@@ -1,11 +1,7 @@
 ﻿IF DB_ID('CarDealer') IS NULL CREATE DATABASE CarDealer	
 GO
 
-USE CarDealer
-GO
-CREATE SCHEMA [HR];
-GO
-CREATE SCHEMA [Service];
+USE CarDealer;
 GO
 
 DROP TABLE IF EXISTS [HR].[EmployeePosition]
@@ -13,10 +9,11 @@ DROP TABLE IF EXISTS [HR].[EmployeeTeam]
 DROP TABLE IF EXISTS [HR].[Team]
 DROP TABLE IF EXISTS [HR].[Position]
 DROP TABLE IF EXISTS [HR].[Salary]
+DROP TABLE IF EXISTS [Service].[OrderHistory]
 DROP TABLE IF EXISTS [Service].[Salary]
 DROP TABLE IF EXISTS [Service].[Status]
 DROP TABLE IF EXISTS [Service].[Order]
-DROP TABLE IF EXISTS [Service].[OrderHistory]
+DROP TABLE IF EXISTS [Service].[Service]
 DROP TABLE IF EXISTS [dbo].[Order]
 DROP TABLE IF EXISTS [dbo].[PriceList]
 DROP TABLE IF EXISTS [dbo].[Model]
@@ -26,6 +23,14 @@ DROP TABLE IF EXISTS [dbo].[Employee]
 DROP TABLE IF EXISTS [dbo].[Address]
 DROP SCHEMA IF EXISTS [HR]
 DROP SCHEMA IF EXISTS [Service]
+DROP SCHEMA IF EXISTS [rapOp]
+GO
+
+CREATE SCHEMA [HR];
+GO
+CREATE SCHEMA [Service];
+GO
+CREATE SCHEMA [rapOp];
 GO
 
 CREATE TABLE [dbo].[Address]
@@ -37,7 +42,7 @@ CREATE TABLE [dbo].[Address]
 	Adr_City			nvarchar(100)		NOT NULL,
 	Adr_Country			nvarchar(50)		NOT NULL
 
-	CONSTRAINT PK_Address	PRIMARY KEY (Add_id)
+	CONSTRAINT PK_Address	PRIMARY KEY (Adr_id)
 );
 GO
 
@@ -207,12 +212,12 @@ GO
 
 CREATE TABLE [Service].[Order]
 (
-	Srd_Id		int				NOT NULL,
+	Sor_Id		int				NOT NULL,
 	Mod_Id		int				NOT NULL,
 	Ser_Id		int				NOT NULL,
 	Prize		money			NOT NULL,
 	
-	CONSTRAINT PK_SerOrder				PRIMARY KEY (Srd_Id),
+	CONSTRAINT PK_SerOrder				PRIMARY KEY (Sor_Id),
 	CONSTRAINT FK_SerOrder_Model		FOREIGN KEY (Mod_Id)	REFERENCES [dbo].[Model] (Mod_Id),
 	CONSTRAINT FK_SerOrder_Service		FOREIGN KEY (Ser_Id)	REFERENCES [Service].[Service] (Ser_Id)
 );
@@ -220,14 +225,44 @@ GO
 
 CREATE TABLE [Service].[OrderHistory]
 (
-	Orh_Id		int				NOT NULL,
-	Srd_Id		int				NOT NULL,
-	Emp_Id		int				NOT NULL,
-	Sta_Name	nvarchar(30)	NOT NULL,
-	Orh_Date	datetime		NOT NULL	DEFAULT GETDATE(),
+	Orh_Id			int				NOT NULL,
+	Sor_Id			int				NOT NULL,
+	Emp_Id			int				NOT NULL,
+	Sta_Name		nvarchar(30)	NOT NULL,
+	Orh_Date		datetime		NOT NULL	DEFAULT GETDATE(),
+	Orh_Description	nvarchar(250)	NULL,
 
 	CONSTRAINT PK_OrderHistory				PRIMARY KEY (Orh_Id),
-	CONSTRAINT FK_OrderHistory_SerOrder		FOREIGN KEY (Srd_Id)	REFERENCES [Service].[Order] (Srd_Id),
+	CONSTRAINT FK_OrderHistory_SerOrder		FOREIGN KEY (Sor_Id)	REFERENCES [Service].[Order] (Sor_Id),
 	CONSTRAINT FK_OrderHistory_Employee		FOREIGN KEY	(Emp_Id)	REFERENCES [dbo].[Employee]	(Emp_Id),
 	CONSTRAINT FK_OrderHistory_SerStatus	FOREIGN KEY (Sta_Name)	REFERENCES [Service].[Status] (Sta_Name),
-)
+);
+GO
+
+CREATE VIEW [rapOp].[v_ModelsWithoutOrders] AS
+	SELECT mol.*
+	FROM [dbo].[Model] AS mol WITH (NOLOCK)
+	LEFT JOIN [dbo].[Order] AS ord ON ord.Mod_Id = mol.Mod_Id
+	WHERE ord.Ord_Id IS NULL;
+GO
+
+CREATE VIEW [rapOp].[v_OrdersWithDiscount] AS
+	SELECT ord.*, ((prl.Pri_Price - ord.Ord_Price) / prl.Pri_Price) AS [Discount]
+	FROM [dbo].[Order] AS ord WITH (NOLOCK)
+	INNER JOIN [dbo].[PriceList] AS prl ON prl.Mod_Id = ord.Mod_Id
+	WHERE ord.Ord_OrderDate > prl.Pri_DateFrom AND ord.Ord_OrderDate < prl.Pri_DateTo
+GO
+
+CREATE VIEW [rapOp].[v_OrdersForBrand] AS 
+	SELECT bra.Bra_FullName, COUNT(ord.Ord_Id) AS [Orders], SUM(ord.Ord_Price) AS [OrderSum]
+	FROM [dbo].[Brand] AS bra WITH (NOLOCK)
+	LEFT JOIN [dbo].[Model] AS mol ON mol.Bra_Id = bra.Bra_Id
+	LEFT JOIN [dbo].[Order] AS ord ON ord.Mod_Id = mol.Mod_Id
+	GROUP BY bra.Bra_FullName;
+GO
+
+CREATE VIEW [rapOp].[v_EmployeeOrders] AS
+	SELECT emp.Emp_FirstName, Emp_LastName, COUNT(ord.Ord_Id) AS [Orders], SUM(ord.Ord_Price) AS [OrderSum]
+	FROM [dbo].[Employee] AS emp WITH (NOLOCK)
+	LEFT JOIN [dbo].[Order] AS ord ON ord.Emp_Id = emp.Emp_Id
+	GROUP BY emp.Emp_Id, emp.Emp_FirstName, emp.Emp_LastName

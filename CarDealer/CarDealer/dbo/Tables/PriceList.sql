@@ -5,6 +5,8 @@
     [Pri_DateFrom] DATE            NOT NULL,
     [Pri_DateTo]   DATE            NULL,
     CONSTRAINT [PK_PriceList] PRIMARY KEY CLUSTERED ([Pri_Id] ASC),
-    CONSTRAINT [FL_Model] FOREIGN KEY ([Mod_Id]) REFERENCES [dbo].[Model] ([Mod_Id]) ON DELETE SET DEFAULT
+    CONSTRAINT [FK_PriceList_Model] FOREIGN KEY ([Mod_Id]) REFERENCES [dbo].[Model] ([Mod_Id]) ON DELETE SET DEFAULT
 );
+
+
 

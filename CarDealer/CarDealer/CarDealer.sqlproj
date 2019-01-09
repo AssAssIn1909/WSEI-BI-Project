@@ -60,6 +60,13 @@
     <Folder Include="dbo\" />
     <Folder Include="dbo\Tables\" />
     <Folder Include="SQL" />
+    <Folder Include="Service\" />
+    <Folder Include="Service\Tables\" />
+    <Folder Include="HR\" />
+    <Folder Include="HR\Tables\" />
+    <Folder Include="Security\" />
+    <Folder Include="rapOp\" />
+    <Folder Include="rapOp\Views\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\PriceList.sql" />
@@ -68,8 +75,28 @@
     <Build Include="dbo\Tables\Employee.sql" />
     <Build Include="dbo\Tables\Client.sql" />
     <Build Include="dbo\Tables\Brand.sql" />
+    <Build Include="dbo\Tables\Address.sql" />
+    <Build Include="Service\Tables\Order.sql" />
+    <Build Include="Service\Tables\Status.sql" />
+    <Build Include="Service\Tables\Service.sql" />
+    <Build Include="Service\Tables\OrderHistory.sql" />
+    <Build Include="HR\Tables\Salary.sql" />
+    <Build Include="HR\Tables\EmployeePosition.sql" />
+    <Build Include="HR\Tables\EmployeeTeam.sql" />
+    <Build Include="HR\Tables\Team.sql" />
+    <Build Include="HR\Tables\Position.sql" />
+    <Build Include="Security\Service.sql" />
+    <Build Include="Security\HR.sql" />
+    <Build Include="rapOp\Views\v_EmployeeOrders.sql" />
+    <Build Include="rapOp\Views\v_OrdersForBrand.sql" />
+    <Build Include="rapOp\Views\v_OrdersWithDiscount.sql" />
+    <Build Include="rapOp\Views\v_ModelsWithoutOrders.sql" />
+    <Build Include="Security\rapOp.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SQL\DatabaseCreate.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="GenerateData.sql" />
   </ItemGroup>
 </Project>
