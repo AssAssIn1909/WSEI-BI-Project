@@ -99,4 +99,7 @@
   <ItemGroup>
     <PostDeploy Include="GenerateData.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="CarDealer.refactorlog" />
+  </ItemGroup>
 </Project>

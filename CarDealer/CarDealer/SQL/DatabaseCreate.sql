@@ -21,6 +21,10 @@ DROP TABLE IF EXISTS [dbo].[Brand]
 DROP TABLE IF EXISTS [dbo].[Client]
 DROP TABLE IF EXISTS [dbo].[Employee]
 DROP TABLE IF EXISTS [dbo].[Address]
+DROP VIEW IF EXISTS [rapOp].[v_EmployeeOrders]
+DROP VIEW IF EXISTS [rapOp].[v_ModelsWithoutOrders]
+DROP VIEW IF EXISTS [rapOp].[v_OrdersForBrand]
+DROP VIEW IF EXISTS [rapOp].[v_OrdersWithDiscount]
 DROP SCHEMA IF EXISTS [HR]
 DROP SCHEMA IF EXISTS [Service]
 DROP SCHEMA IF EXISTS [rapOp]
@@ -38,7 +42,7 @@ CREATE TABLE [dbo].[Address]
 	Adr_Id				int					NOT NULL IDENTITY(1, 1),
 	Adr_Street			nvarchar(100)		NOT NULL,
 	Adr_BuildingNumber	nvarchar(5)			NOT NULL,
-	Adr_ApartmentNumber tinyint				NOT NULL,
+	Adr_ApartmentNumber tinyint				NULL,
 	Adr_City			nvarchar(100)		NOT NULL,
 	Adr_Country			nvarchar(50)		NOT NULL
 
@@ -95,9 +99,9 @@ CREATE TABLE [dbo].[Model]
 	Mod_FuelType	nvarchar(20)		NOT NULL,
 	Mod_EngineKW	smallint			NOT NULL,
 	Mod_Year		smallint			NOT NULL,
-	Mod_DriveType	nchar(3)			NOT NULL,
+	Mod_DriveType	nvarchar(20)		NOT NULL,
 	Mod_BodyType	nvarchar(20)		NOT NULL,
-	Mod_SeatsNumber tinyint				NOT NULL DEFAULT 0,
+	Mod_DoorsNumber tinyint				NOT NULL DEFAULT 0,
 	
 	CONSTRAINT PK_Model			PRIMARY KEY (Mod_Id),
 	CONSTRAINT FK_Model_Brand	FOREIGN KEY (Bra_Id)	REFERENCES Brand (Bra_Id) ON DELETE SET DEFAULT,
@@ -183,7 +187,7 @@ CREATE TABLE [HR].[Salary]
 (
 	Sal_Id			int				NOT NULL,
 	Emp_Id			int				NOT NULL,
-	Sal_Amount		money			NOT NULL,
+	Sal_Amount		smallmoney		NOT NULL,
 	Sal_Type		nvarchar(6)		NOT NULL,
 	Sal_DateFrom	date			NOT NULL,
 	Sal_DateTo		date			NULL,
@@ -193,6 +197,7 @@ CREATE TABLE [HR].[Salary]
 	CONSTRAINT CH_Salaray_Type		CHECK (Sal_Type IN ('Premia', 'Pensja'))
 );
 GO
+
 
 CREATE TABLE [Service].[Service]
 (
