@@ -4,11 +4,12 @@ GO
 USE CarDealer;
 GO
 
+DROP TABLE IF EXISTS [HR].[Paycheck]
+DROP TABLE IF EXISTS [HR].[Salary]
 DROP TABLE IF EXISTS [HR].[EmployeePosition]
 DROP TABLE IF EXISTS [HR].[EmployeeTeam]
 DROP TABLE IF EXISTS [HR].[Team]
 DROP TABLE IF EXISTS [HR].[Position]
-DROP TABLE IF EXISTS [HR].[Salary]
 DROP TABLE IF EXISTS [Service].[OrderHistory]
 DROP TABLE IF EXISTS [Service].[Salary]
 DROP TABLE IF EXISTS [Service].[Status]
@@ -52,11 +53,12 @@ GO
 
 CREATE TABLE [dbo].[Employee]
 (
-	Emp_Id			int					NOT NULL IDENTITY(1, 1),
-	Adr_Id			int					NOT NULL,
-	Emp_PESEL		nchar(11)			NOT NULL,
-	Emp_FirstName	nvarchar(50)		NOT NULL,
-	Emp_LastName	nvarchar(50)		NOT NULL,
+	Emp_Id				int					NOT NULL IDENTITY(1, 1),
+	Adr_Id				int					NOT NULL,
+	Emp_PESEL			nchar(11)			NOT NULL,
+	Emp_FirstName		nvarchar(50)		NOT NULL,
+	Emp_LastName		nvarchar(50)		NOT NULL,
+	Emp_EmploymentDate	date				NOT NULL,
 
 	CONSTRAINT PK_Employee			PRIMARY KEY (Emp_Id),
 	CONSTRAINT FK_Employee_Address	FOREIGN KEY (Adr_ID) REFERENCES Address (Adr_Id),
@@ -95,11 +97,11 @@ CREATE TABLE [dbo].[Model]
 	Mod_Id			int					NOT NULL IDENTITY(1, 1),
 	Bra_Id			int					NOT NULL DEFAULT -1,
 	Mod_Code		nchar(10)			NOT NULL,
-	Mod_Name		nvarchar(50)		NOT NULL,
+	Mod_Name		nvarchar(250)		NOT NULL,
 	Mod_FuelType	nvarchar(20)		NOT NULL,
 	Mod_EngineKW	smallint			NOT NULL,
 	Mod_Year		smallint			NOT NULL,
-	Mod_DriveType	nvarchar(20)		NOT NULL,
+	Mod_DriveType	nvarchar(50)		NOT NULL,
 	Mod_BodyType	nvarchar(20)		NOT NULL,
 	Mod_DoorsNumber tinyint				NOT NULL DEFAULT 0,
 	
@@ -183,26 +185,37 @@ CREATE TABLE [HR].[EmployeePosition]
 );
 GO
 
+CREATE TABLE [HR].[Paycheck] (
+    [Pay_Id]       INT          NOT NULL	IDENTITY(1, 1),
+    [Emp_Id]       INT          NOT NULL,
+    [Pay_Amount]   MONEY        NOT NULL,
+    [Pay_DateFrom] DATE         NOT NULL,
+    [Pay_DateTo]   DATE         NULL,
+    CONSTRAINT [PK_Paycheck] PRIMARY KEY CLUSTERED ([Pay_Id] ASC),
+    CONSTRAINT [FK_Paycheck_Employee] FOREIGN KEY ([Emp_Id]) REFERENCES [dbo].[Employee] ([Emp_Id])
+);
+
+
 CREATE TABLE [HR].[Salary]
 (
-	Sal_Id			int				NOT NULL,
+	Sal_Id			int				NOT NULL	IDENTITY(1, 1),
 	Emp_Id			int				NOT NULL,
 	Sal_Amount		smallmoney		NOT NULL,
 	Sal_Type		nvarchar(6)		NOT NULL,
-	Sal_DateFrom	date			NOT NULL,
-	Sal_DateTo		date			NULL,
+	Sal_Date		date			NOT NULL
 
 	CONSTRAINT PK_Salary			PRIMARY KEY (Sal_Id),
 	CONSTRAINT FK_Salary_Employee	FOREIGN KEY (Emp_Id)	REFERENCES Employee (Emp_Id),
-	CONSTRAINT CH_Salaray_Type		CHECK (Sal_Type IN ('Premia', 'Pensja'))
+	CONSTRAINT CH_Salary_Type		CHECK (Sal_Type IN ('Premia', 'Pensja'))
 );
 GO
 
 
 CREATE TABLE [Service].[Service]
 (
-	Ser_Id		int				NOT NULL,
-	Ser_Name	nvarchar(70)	NOT NULL,
+	Ser_Id			int				NOT NULL	IDENTITY(1, 1),
+	Ser_Name		nvarchar(70)	NOT NULL,
+	Ser_ShortName	nvarchar(15)	NOT NULL,
 	
 	CONSTRAINT PK_Service	PRIMARY KEY (Ser_Id)
 );
@@ -217,7 +230,7 @@ GO
 
 CREATE TABLE [Service].[Order]
 (
-	Sor_Id		int				NOT NULL,
+	Sor_Id		int				NOT NULL	IDENTITY(1, 1),
 	Mod_Id		int				NOT NULL,
 	Ser_Id		int				NOT NULL,
 	Prize		money			NOT NULL,
@@ -230,7 +243,7 @@ GO
 
 CREATE TABLE [Service].[OrderHistory]
 (
-	Orh_Id			int				NOT NULL,
+	Orh_Id			int				NOT NULL	IDENTITY(1, 1),
 	Sor_Id			int				NOT NULL,
 	Emp_Id			int				NOT NULL,
 	Sta_Name		nvarchar(30)	NOT NULL,

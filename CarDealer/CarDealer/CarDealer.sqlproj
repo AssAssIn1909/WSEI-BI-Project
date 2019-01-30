@@ -80,7 +80,7 @@
     <Build Include="Service\Tables\Status.sql" />
     <Build Include="Service\Tables\Service.sql" />
     <Build Include="Service\Tables\OrderHistory.sql" />
-    <Build Include="HR\Tables\Salary.sql" />
+    <Build Include="HR\Tables\Paycheck.sql" />
     <Build Include="HR\Tables\EmployeePosition.sql" />
     <Build Include="HR\Tables\EmployeeTeam.sql" />
     <Build Include="HR\Tables\Team.sql" />
@@ -92,6 +92,7 @@
     <Build Include="rapOp\Views\v_OrdersWithDiscount.sql" />
     <Build Include="rapOp\Views\v_ModelsWithoutOrders.sql" />
     <Build Include="Security\rapOp.sql" />
+    <Build Include="HR\Tables\Salary.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SQL\DatabaseCreate.sql" />

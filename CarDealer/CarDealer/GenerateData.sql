@@ -1,16 +1,4 @@
-﻿/*
-Post-Deployment Script Template							
---------------------------------------------------------------------------------------
- This file contains SQL statements that will be appended to the build script.		
- Use SQLCMD syntax to include a file in the post-deployment script.			
- Example:      :r .\myfile.sql								
- Use SQLCMD syntax to reference a variable in the post-deployment script.		
- Example:      :setvar TableName MyTable							
-               SELECT * FROM [$(TableName)]					
---------------------------------------------------------------------------------------
-*/
-
-INSERT INTO Address(Adr_Country, Adr_City, Adr_Street, Adr_BuildingNumber, Adr_ApartmentNumber) VALUES
+﻿INSERT INTO Address(Adr_Country, Adr_City, Adr_Street, Adr_BuildingNumber, Adr_ApartmentNumber) VALUES
 	('Poland', 'Kraków',	'Ulica św. Filipa',				'17',	null),
 	('Poland', 'Warszawa',	'Ulica Garbarska',				'54a',	1),
 	('Poland', 'Łódź',		'Ulica Okopowa',				'13',	3),
@@ -52,20 +40,20 @@ INSERT INTO Client (Cli_FirstName, Cli_LastName, Cli_SerialNumberIDCard, Adr_Id)
 	('Anna',		'Nowak',		'RAH764272',	8);
 GO
 
-INSERT INTO Employee (Emp_FirstName, Emp_LastName, Emp_PESEL, Adr_Id) VALUES
-	('Marian',		'Kamoń',		'85063077497',	9),
-	('Agnieszka',	'Bieruń',		'88010923742',	10),
-	('Alicja',		'Podłąka',		'98060228780',	11),
-	('Krzysztof',	'Bielicki',		'69051537293',	12),
-	('Zbiegniew',	'Tomasz',		'95062657257',	13),
-	('Franiszek',	'Biały',		'79052921733',	14),
-	('Alojzy',		'Szeryf',		'75040787415',	15),
-	('Łukasz',		'Bielicki',		'84110359375',	16)
+INSERT INTO Employee (Emp_FirstName, Emp_LastName, Emp_PESEL, Emp_EmploymentDate, Adr_Id) VALUES
+	('Marian',		'Kamoń',		'85063077497',	'2018-01-5', 9),
+	('Agnieszka',	'Bieruń',		'88010923742',	'2018-01-5', 10),
+	('Alicja',		'Podłąka',		'98060228780',	'2018-07-1', 11),
+	('Krzysztof',	'Bielicki',		'69051537293',	'2018-06-1', 12),
+	('Zbiegniew',	'Tomasz',		'95062657257',	'2018-08-1', 13),
+	('Franiszek',	'Biały',		'79052921733',	'2018-01-5', 14),
+	('Alojzy',		'Szeryf',		'75040787415',	'2018-01-5', 15),
+	('Łukasz',		'Bielicki',		'84110359375',	'2018-01-5', 16)
 GO
 
 INSERT INTO Model (Bra_Id, Mod_Code, Mod_Name, Mod_FuelType, Mod_EngineKW, Mod_Year, Mod_DriveType, Mod_BodyType, Mod_DoorsNumber)
 SELECT 
-	Bra_Id, 
+	B.Bra_Id, 
 	M.Mod_Code,
 	M.Mod_Name,
 	M.Mod_FuelType,
@@ -80,16 +68,15 @@ FROM
 		('Mercedes',	'MERGLE350D',		'GLE 350 d 4MATIC',													'Diesel',			200,	2018,	'All Wheel Drive',		'SUV',			5),
 		('Acura',		'ILX4DR',			'4dr Sedan (2.0L 4cyl 5A)',											'Premium Unleaded',	110,	2019,	'Front Wheel Drive',	'Compact',		4),
 		('Acura',		'ILX4DRP',			'Premium Package 4dr Sedan (2.0L 4cyl 5A)',							'Premium Unleaded',	110,	2019,	'Front Wheel Drive',	'Compact',		4),
-		('Audi',		'A4',				'2.0T Prestige quattro 4dr Sedan AWD (2.0L 4cyl Turbo 8A)',			'Premium Unleaded',	162,	2019,	'All Wheel Drive',		'Sedan',		4),
-		('Audi',		'A5',				'2.0T Premium Plus quattro 2dr Convertible AWD (2.0L 4cyl Turbo 8',	'Premium Unleaded',	162,	2019,	'All Wheel Drive',		'Convertible',	2),
-		('Audi',		'A5',				'2.0T Premium Plus quattro 2dr Coupe AWD (2.0L 4cyl Turbo 6M)',		'Premium Unleaded',	162,	2019,	'All Wheel Drive',		'Coupe',		4),
-		('Bentley',		'Continental GT',	'V8 S 2dr Coupe AWD (4.0L 8cyl Turbo 8A)',							'Premium Unleaded',	383,	2019,	'All Wheel Drive',		'Coupe',		4),
-		('Bentley',		'Flying Spur',		'4dr Sedan AWD (4.0L 8cyl Turbo 8A)',								'Premium Unleaded',	368,	2019,	'All Wheel Drive',		'Sedan',		4),
-		('BMW',			'M3',				'4dr Sedan (3.0L 6cyl Turbo 6M)',									'Premium Unleaded',	313,	2019,	'Rear Wheel Drive',		'Sedan',		4),
-		('BMW',			'M4',				'2dr Convertible (3.0L 6cyl Turbo 6M)',								'Premium Unleaded',	313,	2019,	'Rear Wheel Drive',		'Convertible',	2),
-		('BMW',			'X3',				'xDrive28d 4dr SUV AWD (2.0L 4cyl Turbodiesel 8A)',					'Diesel',			132,	2019,	'All Wheel Drive',		'SUV',			4),
+		('Audi',		'A4_20TURBO',		'2.0T Prestige quattro 4dr Sedan AWD (2.0L 4cyl Turbo 8A)',			'Premium Unleaded',	162,	2019,	'All Wheel Drive',		'Sedan',		4),
+		('Audi',		'A5_20TURBO',		'2.0T Premium Plus quattro 2dr Coupe AWD (2.0L 4cyl Turbo 6M)',		'Premium Unleaded',	162,	2019,	'All Wheel Drive',		'Coupe',		4),
+		('Bentley',		'Continenta',		'V8 S 2dr Coupe AWD (4.0L 8cyl Turbo 8A)',							'Premium Unleaded',	383,	2019,	'All Wheel Drive',		'Coupe',		4),
+		('Bentley',		'FlyingSpur',		'4dr Sedan AWD (4.0L 8cyl Turbo 8A)',								'Premium Unleaded',	368,	2019,	'All Wheel Drive',		'Sedan',		4),
+		('BMW',			'M3_4DR',			'4dr Sedan (3.0L 6cyl Turbo 6M)',									'Premium Unleaded',	313,	2019,	'Rear Wheel Drive',		'Sedan',		4),
+		('BMW',			'M4_2DR',			'2dr Convertible (3.0L 6cyl Turbo 6M)',								'Premium Unleaded',	313,	2019,	'Rear Wheel Drive',		'Convertible',	2),
+		('BMW',			'X3_4DR',			'xDrive28d 4dr SUV AWD (2.0L 4cyl Turbodiesel 8A)',					'Diesel',			132,	2019,	'All Wheel Drive',		'SUV',			4),
 		('Cadillac',	'CTS',				'Vsport Premium 4dr Sedan (3.6L 6cyl Turbo 8A)',					'Premium Unleaded',	309,	2019,	'Rear Wheel Drive',		'Sedan',		4),
-		('Cadillac',	'CTS-V Coupe',		'2dr Coupe (6.2L 8cyl S/C 6M)',										'Premium Unleaded',	409,	2019,	'Rear Wheel Drive',		'Coupe',		4),
+		('Cadillac',	'CTS-VCoupe',		'2dr Coupe (6.2L 8cyl S/C 6M)',										'Premium Unleaded',	409,	2019,	'Rear Wheel Drive',		'Coupe',		4),
 		('Chevrolet',	'Cruze',			'Diesel 4dr Sedan (2.0L 4cyl Turbodiesel 6A)',						'Diesel',			109,	2019,	'Front Wheel Drive',	'Sedan',		4)
 ) AS M(Bra_Code, Mod_Code, Mod_Name, Mod_FuelType, Mod_EngineKW, Mod_Year, Mod_DriveType, Mod_BodyType, Mod_DoorsNumber)
 INNER JOIN Brand AS B ON B.Bra_Code = M.Bra_Code;
@@ -104,20 +91,20 @@ GO
 
 INSERT INTO [HR].[EmployeeTeam]
 SELECT 
-	Emp_Id,
+	e.Emp_Id,
 	m.Tem_Name
 FROM
 (
 	VALUES 
-		('85063077497','Fast'),
-		('88010923742','Premium'),
-		('98060228780','Normal1'),
-		('69051537293','Normal1'),
-		('95062657257','Normal2'),
-		('95062657257','Fast'),
-		('79052921733','Normal2'),
-		('75040787415','Premium'),
-		('84110359375','Fast')
+		('85063077497',	'Fast'),
+		('88010923742',	'Premium'),
+		('98060228780',	'Normal1'),
+		('69051537293',	'Normal1'),
+		('95062657257',	'Normal2'),
+		('95062657257',	'Fast'),
+		('79052921733',	'Normal2'),
+		('75040787415',	'Premium'),
+		('84110359375',	'Fast')
 ) AS m(Emp_PESEL, Tem_Name)
 INNER JOIN [dbo].[Employee] AS e ON e.Emp_PESEL = m.Emp_PESEL;
 GO
@@ -128,39 +115,115 @@ INSERT INTO [HR].[Position] VALUES
 	('Elektryk');
 GO
 
-INSERT INTO [HR].[EmployeePosition]
+INSERT INTO [HR].[EmployeePosition] (Emp_Id, Pos_Position, Eps_DateFrom, Eps_DateTo)
 SELECT 
-	Emp_Id,
-	m.Pos_Position
+	e.Emp_Id,
+	m.Pos_Position,
+	m.Eps_DateFrom,
+	m.Eps_DateTo
 FROM
 (
 	VALUES 
-		('85063077497','Konsultant'),
-		('88010923742','Konsultant'),
-		('98060228780','Konsultant'),
-		('69051537293','Mechanik'),
-		('95062657257','Elektryk'),
-		('95062657257','Mechanik'),
-		('79052921733','Mechanik'),
-		('75040787415','Elektryk'),
-		('75040787415','Mechanik'),
-		('84110359375','Elektryk')
-) AS m(Emp_PESEL, Pos_Position)
+		('85063077497',	'Konsultant',	'2018-01-5', null),
+		('88010923742',	'Konsultant',	'2018-01-5', null),
+		('98060228780',	'Konsultant',	'2018-07-1', null),
+		('69051537293',	'Mechanik',		'2018-06-1', null),
+		('95062657257',	'Elektryk',		'2018-08-1', '2018-10-31'),
+		('95062657257',	'Mechanik',		'2018-11-1', null),
+		('79052921733',	'Mechanik',		'2018-01-5', null),
+		('75040787415',	'Elektryk',		'2018-01-5', '2018-11-30'),
+		('75040787415',	'Mechanik',		'2018-12-1', null),
+		('84110359375',	'Elektryk',		'2018-01-5', null)
+) AS m(Emp_PESEL, Pos_Position, Eps_DateFrom, Eps_DateTo)
 INNER JOIN [dbo].[Employee] AS e ON e.Emp_PESEL = m.Emp_PESEL;
 GO
-INSERT INTO [HR].[Salary] (Emp_Id, Sal_Amount, Sal_Type, Sal_DateFrom, Sal_DateTo)
+
+INSERT INTO [HR].[Paycheck] (Emp_Id, Pay_Amount, Pay_DateFrom, Pay_DateTo)
 SELECT
-	*
+	e.Emp_Id, 
+	m.Sal_Amount, 
+	m.Sal_DateFrom, 
+	m.Sal_DateTo
 FROM 
 (
 	VALUES 
-		('85063077497',3500),
-		('88010923742',3700),
-		('98060228780',3000),
-		('69051537293',4500),
-		('95062657257',3000),
-		('79052921733',4200),
-		('75040787415',4100),
-		('84110359375',3900)
-) AS m(Emp_PESEL, Sal_Amount, Sal_Type, Sal_DateFrom, Sal_DateTo)
+		('85063077497',	3500,	'2018-01-5',	null),
+		('88010923742',	3700,	'2018-01-5',	null),
+		('98060228780',	3000,	'2018-07-1',	'2019-01-31'),
+		('69051537293',	4500,	'2018-06-1',	null),
+		('95062657257',	3000,	'2018-08-1',	null),
+		('79052921733',	4200,	'2018-01-5',	null),
+		('75040787415',	4100,	'2018-01-5',	null),
+		('84110359375',	3900,	'2018-01-5',	null),
+		('98060228780',	3300,	'2018-02-1',	null)
+) AS m(Emp_PESEL, Sal_Amount, Sal_DateFrom, Sal_DateTo)
 INNER JOIN [dbo].[Employee] AS e ON e.Emp_PESEL = m.Emp_PESEL;
+GO
+
+DECLARE @date AS DATE = '20180110';	
+DECLARE @empId AS INT = 0;
+DECLARE @prem AS TABLE (Emp_Id INT);
+WHILE @date <= GETDATE()
+BEGIN
+	INSERT INTO [HR].[Salary] (Emp_Id, Sal_Amount, Sal_Date, Sal_Type)
+	SELECT
+		e.Emp_Id, 
+		p.Pay_Amount, 
+		@date, 
+		'Pensja'
+	FROM 
+		[HR].[Paycheck] AS p 
+	INNER JOIN 
+		[dbo].[Employee] AS e ON e.Emp_Id = p.Emp_Id
+	WHERE	p.Pay_DateFrom <= @date AND
+		   (p.Pay_DateTo > @date OR p.Pay_DateTo is null)
+
+	DECLARE @empCount AS INT = (	SELECT COUNT(*) FROM [dbo].[Employee] AS e
+									WHERE	 e.Emp_EmploymentDate <= @date )
+
+	WHILE (SELECT COUNT(*) FROM @prem) < FLOOR(@empCount/4)
+	BEGIN
+		SET @empId = FLOOR(RAND()*(10));
+		IF NOT EXISTS (SELECT * FROM @prem WHERE Emp_Id = @empId)
+		BEGIN
+			INSERT INTO @prem VALUES (@empId)
+		END
+	END
+
+	INSERT INTO [HR].[Salary] (Emp_Id, Sal_Amount, Sal_Date, Sal_Type)
+	SELECT
+		e.Emp_Id, 
+		FLOOR(RAND()*(30-10)+10)*10, -- 100-300
+		@date, 
+		'PREMIA'
+	FROM 
+		[dbo].[Employee] AS e
+	WHERE e.Emp_Id IN 
+		(
+			SELECT * FROM @prem
+		)
+
+	SET @date = DATEADD(month, 1, @date);
+END
+GO
+
+INSERT INTO [Service].[Status] VALUES
+	('Przyjeto'),
+	('W trakcie'),
+	('Zakonczono'),
+	('Odebrano');
+GO
+
+INSERT INTO [Service].[Service] (Ser_ShortName, Ser_Name) VALUES
+	('Lampa',			'Wymiana lampy'),
+	('Silnik',			'Wymiana silnika'),
+	('Olej',			'Wymiana oleju'),
+	('Przeglad',		'Przegląd samochodu'),
+	('Lakierowanie',	'Lakierowanie nadwozia'),
+	('Bledy',			'Kasowanie błędów komputera'),
+	('Opony',			'Wymiana opon'),
+	('Klocki',			'Wymiana klocków hamulcowych'),
+	('Tarcze',			'Wymiana tarcz hamulcowych'),
+	('RSilnika',		'Remont silnika'),
+	('Klimatyzacja',	'Naprawa klimatyzacji');
+GO

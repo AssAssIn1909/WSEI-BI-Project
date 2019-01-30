@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [Service].[OrderHistory] (
-    [Orh_Id]          INT            NOT NULL,
+    [Orh_Id]          INT            IDENTITY (1, 1) NOT NULL,
     [Sor_Id]          INT            NOT NULL,
     [Emp_Id]          INT            NOT NULL,
     [Sta_Name]        NVARCHAR (30)  NOT NULL,
@@ -10,4 +10,6 @@
     CONSTRAINT [FK_OrderHistory_SerOrder] FOREIGN KEY ([Sor_Id]) REFERENCES [Service].[Order] ([Sor_Id]),
     CONSTRAINT [FK_OrderHistory_SerStatus] FOREIGN KEY ([Sta_Name]) REFERENCES [Service].[Status] ([Sta_Name])
 );
+
+
 
