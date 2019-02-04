@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28516.95
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "CarDealer", "CarDealer\CarDealer.sqlproj", "{1BCAB68B-6D62-46E3-8D99-A4F53DCA9B63}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "CarDealerWarehouse", "CarDealerWarehouse\CarDealerWarehouse.sqlproj", "{0ED1F68F-6816-4CB3-98C8-21AB6A88067E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +19,12 @@ Global
 		{1BCAB68B-6D62-46E3-8D99-A4F53DCA9B63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BCAB68B-6D62-46E3-8D99-A4F53DCA9B63}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1BCAB68B-6D62-46E3-8D99-A4F53DCA9B63}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{0ED1F68F-6816-4CB3-98C8-21AB6A88067E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ED1F68F-6816-4CB3-98C8-21AB6A88067E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ED1F68F-6816-4CB3-98C8-21AB6A88067E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{0ED1F68F-6816-4CB3-98C8-21AB6A88067E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ED1F68F-6816-4CB3-98C8-21AB6A88067E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ED1F68F-6816-4CB3-98C8-21AB6A88067E}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -253,33 +253,27 @@ GO
 DECLARE @date AS DATE = '20180101';
 WHILE @date < GETDATE()
 	BEGIN
-		--DECLARE @buyCount AS INT = CEILING((SELECT COUNT(*) FROM [dbo].[Client]) / 3);
-		--WHILE @buyCount > 0
-			--BEGIN
-				DECLARE @discount AS FLOAT = FLOOR(RAND()*(10));
-				DECLARE @modId AS INT = (SELECT TOP 1 Mod_id FROM [dbo].[Model] ORDER BY NEWID());
-				DECLARE @empId AS INT = (SELECT TOP 1 Emp_id FROM [HR].[EmployeePosition] AS ep WHERE ep.Pos_Position = 'Konsultant' ORDER BY NEWID());
-				DECLARE @cliId AS INT = (SELECT TOP 1 Cli_Id FROM [dbo].[Client] ORDER BY NEWID());
+		DECLARE @discount AS FLOAT = FLOOR(RAND()*(10));
+		DECLARE @modId AS INT = (SELECT TOP 1 Mod_id FROM [dbo].[Model] ORDER BY NEWID());
+		DECLARE @empId AS INT = (SELECT TOP 1 Emp_id FROM [HR].[EmployeePosition] AS ep WHERE ep.Pos_Position = 'Konsultant' ORDER BY NEWID());
+		DECLARE @cliId AS INT = (SELECT TOP 1 Cli_Id FROM [dbo].[Client] ORDER BY NEWID());
 
-				INSERT INTO [dbo].[Order] (Mod_Id, Emp_Id, Cli_Id, Ord_Price, Ord_OrderDate, Ord_DateOfReceipt, Ord_IsCompleted, Ord_IsPaid)
-				SELECT 
-					pl.Mod_Id,
-					@empId,
-					@cliId,
-					pl.Pri_Price * (1-(@discount /100)),
-					@date,
-					@date,
-					1,
-					1
-				FROM
-					[dbo].[PriceList] AS pl
-				WHERE 
-					pl.Mod_Id = @modId
-					AND pl.Pri_DateFrom <= @date
-					AND pl.Pri_DateTo > @date
-
-			--	SET @buyCount = @buyCount - 1;
-			--END
+		INSERT INTO [dbo].[Order] (Mod_Id, Emp_Id, Cli_Id, Ord_Price, Ord_OrderDate, Ord_DateOfReceipt, Ord_IsCompleted, Ord_IsPaid)
+		SELECT 
+			pl.Mod_Id,
+			@empId,
+			@cliId,
+			pl.Pri_Price * (1-(@discount /100)),
+			@date,
+			@date,
+			1,
+			1
+		FROM
+			[dbo].[PriceList] AS pl
+		WHERE 
+			pl.Mod_Id = @modId
+			AND pl.Pri_DateFrom <= @date
+			AND pl.Pri_DateTo > @date
 
 		SET @date = DATEADD(DAY, 1, @date);
 	END;
@@ -289,16 +283,9 @@ GO
 WHILE (SELECT COUNT(*) FROM [Service].[Order]) < 100
 	BEGIN
 	DECLARE @serId AS INT = (SELECT TOP 1 Ser_Id FROM [Service].[Service] ORDER BY NEWID());
-		DECLARE @rand AS INT = FLOOR(RAND()*(100));
 		DECLARE @modId AS TABLE (Mod_Id int, Ord_VIN nchar(17));
-		IF (@rand < 50)
-			BEGIN
-				INSERT INTO @modId SELECT TOP 1 Mod_id, SUBSTRING(REPLACE(NEWID(),'-',''),1,17) AS Ord_VIM FROM [dbo].[Model] ORDER BY NEWID();
-			END
-		ELSE
-			BEGIN
-				INSERT INTO @modId SELECT TOP 1 Mod_id, Ord_VIN FROM [dbo].[Order] ORDER BY NEWID();
-			END
+		
+		INSERT INTO @modId SELECT TOP 1 Mod_id, Ord_VIN FROM [dbo].[Order] ORDER BY NEWID();
 		
 		INSERT INTO [Service].[Order] ([Mod_Id], [Ser_Id], [Ser_VIN], [Ser_Price])
 		SELECT 
