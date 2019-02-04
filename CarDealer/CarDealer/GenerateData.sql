@@ -160,11 +160,32 @@ FROM
 INNER JOIN [dbo].[Employee] AS e ON e.Emp_PESEL = m.Emp_PESEL;
 GO
 
+INSERT INTO [Service].[Status] VALUES
+	('Przyjeto'),
+	('W trakcie'),
+	('Zakonczono'),
+	('Odebrano');
+GO
+
+INSERT INTO [Service].[Service] (Ser_ShortName, Ser_Name) VALUES
+	('Lampa',			'Wymiana lampy'),
+	('Silnik',			'Wymiana silnika'),
+	('Olej',			'Wymiana oleju'),
+	('Przeglad',		'Przegląd samochodu'),
+	('Lakierowanie',	'Lakierowanie nadwozia'),
+	('Bledy',			'Kasowanie błędów komputera'),
+	('Opony',			'Wymiana opon'),
+	('Klocki',			'Wymiana klocków hamulcowych'),
+	('Tarcze',			'Wymiana tarcz hamulcowych'),
+	('RSilnika',		'Remont silnika'),
+	('Klimatyzacja',	'Naprawa klimatyzacji');
+GO
+
 DECLARE @date AS DATE = '20180110';	
 DECLARE @empId AS INT = 0;
-DECLARE @prem AS TABLE (Emp_Id INT);
 WHILE @date <= GETDATE()
 BEGIN
+	DECLARE @prem AS TABLE (Emp_Id INT);
 	INSERT INTO [HR].[Salary] (Emp_Id, Sal_Amount, Sal_Date, Sal_Type)
 	SELECT
 		e.Emp_Id, 
@@ -178,8 +199,12 @@ BEGIN
 	WHERE	p.Pay_DateFrom <= @date AND
 		   (p.Pay_DateTo > @date OR p.Pay_DateTo is null)
 
-	DECLARE @empCount AS INT = (	SELECT COUNT(*) FROM [dbo].[Employee] AS e
-									WHERE	 e.Emp_EmploymentDate <= @date )
+	DECLARE @empCount AS INT = (	SELECT 
+											COUNT(*) 
+									FROM 
+										[dbo].[Employee] AS e
+									WHERE	 
+										e.Emp_EmploymentDate <= @date )
 
 	WHILE (SELECT COUNT(*) FROM @prem) < FLOOR(@empCount/4)
 	BEGIN
@@ -207,23 +232,142 @@ BEGIN
 END
 GO
 
-INSERT INTO [Service].[Status] VALUES
-	('Przyjeto'),
-	('W trakcie'),
-	('Zakonczono'),
-	('Odebrano');
+DECLARE @dateFrom AS DATE = '20180101'; 
+DECLARE @dateTo AS DATE = DATEADD(DAY, 180, @dateFrom);
+WHILE @dateFrom < GETDATE()
+	BEGIN
+		INSERT INTO [dbo].[PriceList] (Mod_Id, Pri_Price, Pri_DateFrom, Pri_DateTo)
+		SELECT 
+			m.Mod_Id,
+			FLOOR(RAND()*(500-10)+10)*1000,
+			@dateFrom,
+			@dateTo
+		FROM
+			[dbo].[Model] AS m
+
+		SET @dateFrom = @dateTo;
+		SET @dateTo = DATEADD(DAY, 180,@dateFrom);
+	END;
 GO
 
-INSERT INTO [Service].[Service] (Ser_ShortName, Ser_Name) VALUES
-	('Lampa',			'Wymiana lampy'),
-	('Silnik',			'Wymiana silnika'),
-	('Olej',			'Wymiana oleju'),
-	('Przeglad',		'Przegląd samochodu'),
-	('Lakierowanie',	'Lakierowanie nadwozia'),
-	('Bledy',			'Kasowanie błędów komputera'),
-	('Opony',			'Wymiana opon'),
-	('Klocki',			'Wymiana klocków hamulcowych'),
-	('Tarcze',			'Wymiana tarcz hamulcowych'),
-	('RSilnika',		'Remont silnika'),
-	('Klimatyzacja',	'Naprawa klimatyzacji');
+DECLARE @date AS DATE = '20180101';
+WHILE @date < GETDATE()
+	BEGIN
+		--DECLARE @buyCount AS INT = CEILING((SELECT COUNT(*) FROM [dbo].[Client]) / 3);
+		--WHILE @buyCount > 0
+			--BEGIN
+				DECLARE @discount AS FLOAT = FLOOR(RAND()*(10));
+				DECLARE @modId AS INT = (SELECT TOP 1 Mod_id FROM [dbo].[Model] ORDER BY NEWID());
+				DECLARE @empId AS INT = (SELECT TOP 1 Emp_id FROM [HR].[EmployeePosition] AS ep WHERE ep.Pos_Position = 'Konsultant' ORDER BY NEWID());
+				DECLARE @cliId AS INT = (SELECT TOP 1 Cli_Id FROM [dbo].[Client] ORDER BY NEWID());
+
+				INSERT INTO [dbo].[Order] (Mod_Id, Emp_Id, Cli_Id, Ord_Price, Ord_OrderDate, Ord_DateOfReceipt, Ord_IsCompleted, Ord_IsPaid)
+				SELECT 
+					pl.Mod_Id,
+					@empId,
+					@cliId,
+					pl.Pri_Price * (1-(@discount /100)),
+					@date,
+					@date,
+					1,
+					1
+				FROM
+					[dbo].[PriceList] AS pl
+				WHERE 
+					pl.Mod_Id = @modId
+					AND pl.Pri_DateFrom <= @date
+					AND pl.Pri_DateTo > @date
+
+			--	SET @buyCount = @buyCount - 1;
+			--END
+
+		SET @date = DATEADD(DAY, 1, @date);
+	END;
 GO
+
+
+WHILE (SELECT COUNT(*) FROM [Service].[Order]) < 100
+	BEGIN
+	DECLARE @serId AS INT = (SELECT TOP 1 Ser_Id FROM [Service].[Service] ORDER BY NEWID());
+		DECLARE @rand AS INT = FLOOR(RAND()*(100));
+		DECLARE @modId AS TABLE (Mod_Id int, Ord_VIN nchar(17));
+		IF (@rand < 50)
+			BEGIN
+				INSERT INTO @modId SELECT TOP 1 Mod_id, SUBSTRING(REPLACE(NEWID(),'-',''),1,17) AS Ord_VIM FROM [dbo].[Model] ORDER BY NEWID();
+			END
+		ELSE
+			BEGIN
+				INSERT INTO @modId SELECT TOP 1 Mod_id, Ord_VIN FROM [dbo].[Order] ORDER BY NEWID();
+			END
+		
+		INSERT INTO [Service].[Order] ([Mod_Id], [Ser_Id], [Ser_VIN], [Ser_Price])
+		SELECT 
+			m.Mod_Id,
+			@serId,
+			m.Ord_VIN,
+			FLOOR(RAND(CAST( NEWID() AS varbinary))*(3000-100)+100)
+		FROM
+			@modId AS m
+	END
+GO
+
+DECLARE @temp AS TABLE(       
+[Sor_Id]          INT,          
+[Emp_Id]          INT,          
+[Sta_Name]        NVARCHAR (30),
+[Orh_Date]        DATETIME)
+
+DECLARE @ordersCount AS int = (SELECT count(*) FROM [Service].[Order])
+DECLARE @counter AS int = 1;
+DECLARE @date AS date = '20180315';
+
+WHILE (SELECT COUNT(*) FROM @temp) < @ordersCount * 4
+BEGIN
+	DECLARE @empId AS INT = (SELECT TOP 1 Emp_id FROM hr.EmployeePosition AS e WHERE e.Pos_Position = 'Konsultant' ORDER BY NEWID())
+	INSERT INTO @TEMP
+	SELECT 
+		o.Sor_Id,
+		@empId,
+		'Przyjeto',
+		@date
+	FROM [Service].[Order] AS o
+	WHERE o.Ser_Id = @counter
+	
+	SET @date = DATEADD(DAY,2, @date)
+	SET @empId = (SELECT TOP 1 Emp_id FROM hr.EmployeePosition AS e WHERE e.Pos_Position != 'Konsultant' ORDER BY NEWID())
+	INSERT INTO @TEMP
+	SELECT 
+		o.Sor_Id,
+		@empId,
+		'W trakcie',
+		@date
+	FROM [Service].[Order] AS o
+	WHERE o.Ser_Id = @counter
+
+	SET @date = DATEADD(DAY,2, @date)
+	SET @empId = (SELECT TOP 1 Emp_id FROM hr.EmployeePosition AS e WHERE e.Pos_Position != 'Konsultant' ORDER BY NEWID())
+	INSERT INTO @TEMP
+	SELECT 
+		o.Sor_Id,
+		@empId,
+		'Zakonczono',
+		@date
+	FROM [Service].[Order] AS o
+	WHERE o.Ser_Id = @counter
+
+	SET @date = DATEADD(DAY,2, @date)
+	SET @empId = (SELECT TOP 1 Emp_id FROM hr.EmployeePosition AS e WHERE e.Pos_Position = 'Konsultant' ORDER BY NEWID())
+	INSERT INTO @TEMP
+	SELECT 
+		o.Sor_Id,
+		@empId,
+		'Odebrano',
+		@date
+	FROM [Service].[Order] AS o
+	WHERE o.Ser_Id = @counter
+
+	SET @counter = @counter + 1;
+END
+
+INSERT INTO [Service].[OrderHistory] (Sor_Id, Emp_Id, Sta_Name, Orh_Date)
+SELECT * FROM @temp ORDER BY Sor_Id

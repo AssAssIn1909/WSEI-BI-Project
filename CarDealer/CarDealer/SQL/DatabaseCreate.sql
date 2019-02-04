@@ -26,6 +26,12 @@ DROP VIEW IF EXISTS [rapOp].[v_EmployeeOrders]
 DROP VIEW IF EXISTS [rapOp].[v_ModelsWithoutOrders]
 DROP VIEW IF EXISTS [rapOp].[v_OrdersForBrand]
 DROP VIEW IF EXISTS [rapOp].[v_OrdersWithDiscount]
+DROP VIEW IF EXISTS [rapOp].[v_CurrentEmployeesSalary]
+DROP VIEW IF EXISTS [rapOp].[v_AvarageSalaryPerTeam]
+DROP VIEW IF EXISTS [rapOp].[v_TotalSalaryWithBonus]
+DROP VIEW IF EXISTS [rapOp].[v_TimesInServicePerModel]
+DROP VIEW IF EXISTS [rapOp].[v_ServiceCountsWithAvaragePrice]
+DROP VIEW IF EXISTS [rapOp].[v_ModelsWithServiceName]
 DROP SCHEMA IF EXISTS [HR]
 DROP SCHEMA IF EXISTS [Service]
 DROP SCHEMA IF EXISTS [rapOp]
@@ -115,7 +121,7 @@ CREATE TABLE [dbo].[PriceList]
 (
 	Pri_Id			int					NOT NULL IDENTITY(1, 1),
 	Mod_Id			int					NOT NULL DEFAULT -1,
-	Pri_Price		decimal(12,2)		NOT NULL,
+	Pri_Price		money				NOT NULL,
 	Pri_DateFrom	date				NOT NULL,
 	Pri_DateTo		date				NULL,
 
@@ -130,16 +136,18 @@ CREATE TABLE [dbo].[Order]
 	Mod_Id				int					NOT NULL DEFAULT -1,
 	Emp_Id				int					NOT NULL DEFAULT -1,
 	Cli_Id				int					NOT NULL DEFAULT -1,
-	Ord_Price			decimal(12, 2)		NOT NULL,
+	Ord_Price			money				NOT NULL,
 	Ord_OrderDate		datetime			NOT NULL,
 	Ord_DateOfReceipt	datetime			NULL,
 	Ord_IsCompleted		bit					NOT NULL DEFAULT 0,
 	Ord_IsPaid			bit					NOT NULL DEFAULT 0,
+	Ord_VIN				nchar(17)			NOT NULL DEFAULT SUBSTRING(REPLACE(NEWID(),'-',''),1,17)
 
 	CONSTRAINT PK_Orde				PRIMARY KEY (Ord_Id),
 	CONSTRAINT FK_Order_Model		FOREIGN KEY (Mod_Id)		REFERENCES Model (Mod_Id) ON DELETE SET DEFAULT,
 	CONSTRAINT FK_Order_Client		FOREIGN KEY (Cli_Id)		REFERENCES Client (Cli_Id) ON DELETE SET DEFAULT,
 	CONSTRAINT FK_Order_Employee	FOREIGN KEY (Emp_Id)		REFERENCES Employee (Emp_Id) ON DELETE SET DEFAULT,
+	CONSTRAINT UQ_VIN				UNIQUE		(Ord_VIN),
 	CONSTRAINT CH_Price				CHECK		(Ord_Price > 0)
 );
 GO
@@ -233,7 +241,9 @@ CREATE TABLE [Service].[Order]
 	Sor_Id		int				NOT NULL	IDENTITY(1, 1),
 	Mod_Id		int				NOT NULL,
 	Ser_Id		int				NOT NULL,
-	Prize		money			NOT NULL,
+	Ser_Price	money			NOT NULL,
+	Ser_VIN		nchar(17)		NOT NULL,
+
 	
 	CONSTRAINT PK_SerOrder				PRIMARY KEY (Sor_Id),
 	CONSTRAINT FK_SerOrder_Model		FOREIGN KEY (Mod_Id)	REFERENCES [dbo].[Model] (Mod_Id),
@@ -258,29 +268,134 @@ CREATE TABLE [Service].[OrderHistory]
 GO
 
 CREATE VIEW [rapOp].[v_ModelsWithoutOrders] AS
-	SELECT mol.*
-	FROM [dbo].[Model] AS mol WITH (NOLOCK)
-	LEFT JOIN [dbo].[Order] AS ord ON ord.Mod_Id = mol.Mod_Id
-	WHERE ord.Ord_Id IS NULL;
+	SELECT
+		mol.*
+	FROM 
+		[dbo].[Model] AS mol WITH (NOLOCK)
+	LEFT JOIN 
+		[dbo].[Order] AS ord ON ord.Mod_Id = mol.Mod_Id
+	WHERE 
+		ord.Ord_Id IS NULL;
 GO
 
 CREATE VIEW [rapOp].[v_OrdersWithDiscount] AS
-	SELECT ord.*, ((prl.Pri_Price - ord.Ord_Price) / prl.Pri_Price) AS [Discount]
-	FROM [dbo].[Order] AS ord WITH (NOLOCK)
-	INNER JOIN [dbo].[PriceList] AS prl ON prl.Mod_Id = ord.Mod_Id
-	WHERE ord.Ord_OrderDate > prl.Pri_DateFrom AND ord.Ord_OrderDate < prl.Pri_DateTo
+	SELECT 
+		ord.*, 
+		((prl.Pri_Price - ord.Ord_Price) / prl.Pri_Price) AS [Discount]
+	FROM 
+		[dbo].[Order] AS ord WITH (NOLOCK)
+	INNER JOIN 
+		[dbo].[PriceList] AS prl ON prl.Mod_Id = ord.Mod_Id
+	WHERE 
+			ord.Ord_OrderDate > prl.Pri_DateFrom
+		AND ord.Ord_OrderDate < prl.Pri_DateTo
 GO
 
 CREATE VIEW [rapOp].[v_OrdersForBrand] AS 
-	SELECT bra.Bra_FullName, COUNT(ord.Ord_Id) AS [Orders], SUM(ord.Ord_Price) AS [OrderSum]
-	FROM [dbo].[Brand] AS bra WITH (NOLOCK)
-	LEFT JOIN [dbo].[Model] AS mol ON mol.Bra_Id = bra.Bra_Id
-	LEFT JOIN [dbo].[Order] AS ord ON ord.Mod_Id = mol.Mod_Id
-	GROUP BY bra.Bra_FullName;
+	SELECT 
+		bra.Bra_FullName, 
+		COUNT(ord.Ord_Id) AS [Orders], 
+		SUM(ord.Ord_Price) AS [OrderSum]
+	FROM 
+		[dbo].[Brand] AS bra WITH (NOLOCK)
+	LEFT JOIN 
+		[dbo].[Model] AS mol ON mol.Bra_Id = bra.Bra_Id
+	LEFT JOIN 
+		[dbo].[Order] AS ord ON ord.Mod_Id = mol.Mod_Id
+	GROUP BY 
+		bra.Bra_FullName;
 GO
 
 CREATE VIEW [rapOp].[v_EmployeeOrders] AS
-	SELECT emp.Emp_FirstName, Emp_LastName, COUNT(ord.Ord_Id) AS [Orders], SUM(ord.Ord_Price) AS [OrderSum]
-	FROM [dbo].[Employee] AS emp WITH (NOLOCK)
-	LEFT JOIN [dbo].[Order] AS ord ON ord.Emp_Id = emp.Emp_Id
-	GROUP BY emp.Emp_Id, emp.Emp_FirstName, emp.Emp_LastName
+	SELECT 
+		emp.Emp_FirstName, Emp_LastName, 
+		COUNT(ord.Ord_Id) AS [Orders], 
+		SUM(ord.Ord_Price) AS [OrderSum]
+	FROM 
+		[dbo].[Employee] AS emp WITH (NOLOCK)
+	LEFT JOIN 
+		[dbo].[Order] AS ord ON ord.Emp_Id = emp.Emp_Id
+	GROUP BY 
+		emp.Emp_Id, emp.Emp_FirstName, emp.Emp_LastName
+GO
+
+CREATE VIEW [rapOp].[v_CurrentEmployeesSalary] AS
+	SELECT 
+		e.Emp_FirstName,
+		e.Emp_LastName,
+		p.Pay_Amount
+	FROM
+		[HR].[Paycheck] AS p WITH (NOLOCK)
+	INNER JOIN 
+		[dbo].[Employee] AS e ON e.Emp_Id = p.Emp_Id 
+	WHERE p.Pay_DateTo IS NULL
+GO
+
+CREATE VIEW [rapOp].[v_AvarageSalaryPerTeam] AS
+	SELECT 
+		ep.Pos_Position,
+		AVG(p.Pay_Amount) AS AvarageSalary
+	FROM
+		[HR].[EmployeePosition] AS ep WITH (NOLOCK)
+	INNER JOIN 
+		[HR].Paycheck AS p ON p.Emp_Id = ep.Emp_Id
+	WHERE
+		ep.Eps_DateTo IS NULL
+	GROUP BY 
+		ep.Pos_Position
+GO
+
+CREATE VIEW [rapOp].[v_TotalSalaryWithBonus] AS
+	SELECT 
+		e.Emp_FirstName,
+		e.Emp_LastName,
+		SUM(s.Sal_Amount) AS Total,
+		SUM(case when s.Sal_Type = 'Premia' THEN s.Sal_Amount END) AS Bonus
+		
+	FROM
+		[HR].[Salary] AS s WITH (NOLOCK)
+	INNER JOIN
+		[dbo].[Employee] AS e ON e.Emp_Id = s.Emp_Id
+	GROUP BY
+		e.Emp_FirstName, e.Emp_LastName
+GO
+
+CREATE VIEW [rapOp].[v_TimesInServicePerModel] AS
+	SELECT 
+		m.Bra_Id,
+		m.Mod_Name,
+		COUNT(o.Ser_Id) AS Times
+	FROM
+		[Service].[Order] AS o WITH (NOLOCK)
+	RIGHT JOIN
+		[dbo].[Model] AS m ON m.Mod_Id = o.Mod_Id
+	GROUP BY
+		m.Bra_Id, m.Mod_Name
+GO
+
+CREATE VIEW [rapOp].[v_ServiceCountsWithAvaragePrice] AS
+	SELECT 
+		s.Ser_Name,
+		COUNT(o.Sor_Id) AS [Count],
+		AVG(o.Ser_Price) AS [AvaragePrice]
+	FROM
+		[Service].[Service] AS s WITH (NOLOCK)
+	LEFT JOIN
+		[Service].[Order] AS o ON o.Ser_Id = s.Ser_Id
+	GROUP BY
+		s.Ser_Name
+GO
+
+CREATE VIEW [rapOp].[v_ModelsWithServiceName] AS
+	SELECT 
+		m.Bra_Id,
+		m.Mod_Name,
+		s.Ser_Name
+	FROM
+		[Service].[OrderHistory] AS oh WITH (NOLOCK)
+	INNER JOIN
+		[Service].[Order] AS o ON o.Sor_Id = oh.Sor_Id
+	INNER JOIN 
+		[dbo].[Model] AS m ON m.Mod_Id = o.Mod_Id
+	INNER JOIN
+		[Service].[Service] as s ON s.Ser_Id = o.Ser_Id

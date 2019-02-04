@@ -93,6 +93,12 @@
     <Build Include="rapOp\Views\v_ModelsWithoutOrders.sql" />
     <Build Include="Security\rapOp.sql" />
     <Build Include="HR\Tables\Salary.sql" />
+    <Build Include="rapOp\Views\v_TotalSalaryWithBonus.sql" />
+    <Build Include="rapOp\Views\v_TimesInServicePerModel.sql" />
+    <Build Include="rapOp\Views\v_ServiceCountsWithAvaragePrice.sql" />
+    <Build Include="rapOp\Views\v_ModelsWithServiceName.sql" />
+    <Build Include="rapOp\Views\v_CurrentEmployeesSalary.sql" />
+    <Build Include="rapOp\Views\v_AvarageSalaryPerTeam.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SQL\DatabaseCreate.sql" />
