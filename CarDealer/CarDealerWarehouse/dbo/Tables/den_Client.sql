@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[Client] (
+﻿CREATE TABLE [dbo].[den_Client] (
     [Cli_Id]                 INT            IDENTITY (1, 1) NOT NULL,
     [Cli_SerialNumberIDCard] NCHAR (9)      NOT NULL,
     [Cli_FirstName]          NVARCHAR (50)  NOT NULL,

@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[Employee] (
+﻿CREATE TABLE [dbo].[den_Employee] (
     [Emp_Id]              INT            IDENTITY (1, 1) NOT NULL,
     [Emp_PESEL]           NCHAR (11)     NOT NULL,
     [Emp_FirstName]       NVARCHAR (50)  NOT NULL,
