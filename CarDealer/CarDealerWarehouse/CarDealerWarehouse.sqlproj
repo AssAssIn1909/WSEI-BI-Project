@@ -62,13 +62,14 @@
     <Folder Include="HR\" />
     <Folder Include="HR\Tables\" />
     <Folder Include="Security\" />
+    <Folder Include="Service\" />
+    <Folder Include="Service\Tables\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SQL\CreateDB.sql" />
+    <None Include="SQL\MoveDateToWarehouse.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="dbo\Tables\Brand.sql" />
-    <Build Include="dbo\Tables\den_OrderHistory.sql" />
     <Build Include="dbo\Tables\den_Order.sql" />
     <Build Include="dbo\Tables\den_Employee.sql" />
     <Build Include="dbo\Tables\den_Client.sql" />
@@ -77,5 +78,7 @@
     <Build Include="HR\Tables\EmployeePosition.sql" />
     <Build Include="HR\Tables\EmployeeTeam.sql" />
     <Build Include="Security\HR.sql" />
+    <Build Include="Service\Tables\den_OrderHistory.sql" />
+    <Build Include="Security\Service.sql" />
   </ItemGroup>
 </Project>

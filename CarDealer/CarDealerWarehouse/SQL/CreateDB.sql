@@ -8,16 +8,18 @@ DROP TABLE IF EXISTS [HR].[Paycheck]
 DROP TABLE IF EXISTS [HR].[Salary]
 DROP TABLE IF EXISTS [HR].[EmployeePosition]
 DROP TABLE IF EXISTS [HR].[EmployeeTeam]
-DROP TABLE IF EXISTS [dbo].[den_OrderHistory]
+DROP TABLE IF EXISTS [Service].[den_OrderHistory]
 DROP TABLE IF EXISTS [dbo].[den_Order]
 DROP TABLE IF EXISTS [dbo].[PriceList]
-DROP TABLE IF EXISTS [dbo].[Brand] 
 DROP TABLE IF EXISTS [dbo].[den_Client]
 DROP TABLE IF EXISTS [dbo].[den_Employee]
 DROP SCHEMA IF EXISTS [HR]
+DROP SCHEMA IF EXISTS [Service]
 GO
 
 CREATE SCHEMA [HR];
+GO
+CREATE SCHEMA [Service];
 GO
 
 
@@ -56,18 +58,6 @@ CREATE TABLE [dbo].[den_Client]
 );
 GO
 
-CREATE TABLE [dbo].[Brand]
-(
-	Bra_Id			int					NOT NULL IDENTITY(1, 1),
-	Bra_Code		nvarchar(20)		NOT NULL,
-	Bra_FullName	nvarchar(50)		NOT NULL,
-	Bra_Country		nvarchar(30)		NOT NULL,
-
-	CONSTRAINT PK_Brand			PRIMARY KEY (Bra_Id),
-	CONSTRAINT UQ_Brand_Code	UNIQUE		(Bra_Code)
-);
-GO
-
 CREATE TABLE [dbo].[den_Order]
 (
 	Ord_Id				int					NOT NULL IDENTITY(1, 1),
@@ -79,7 +69,8 @@ CREATE TABLE [dbo].[den_Order]
 	Ord_IsCompleted		bit					NOT NULL DEFAULT 0,
 	Ord_IsPaid			bit					NOT NULL DEFAULT 0,
 	Ord_VIN				nchar(17)			NOT NULL DEFAULT SUBSTRING(REPLACE(NEWID(),'-',''),1,17),
-	Bra_Id				int					NOT NULL DEFAULT -1,
+	Bra_FullName		nvarchar(50)		NOT NULL,
+	Bra_Country			nvarchar(30)		NOT NULL,
 	Mod_Code			nchar(10)			NOT NULL,
 	Mod_Name			nvarchar(250)		NOT NULL,
 	Mod_FuelType		nvarchar(20)		NOT NULL,
@@ -94,27 +85,27 @@ CREATE TABLE [dbo].[den_Order]
 
 	CONSTRAINT FK_Order_Client		FOREIGN KEY (Cli_Id)		REFERENCES den_Client (Cli_Id) ON DELETE SET DEFAULT,
 	CONSTRAINT FK_Order_Employee	FOREIGN KEY (Emp_Id)		REFERENCES den_Employee (Emp_Id) ON DELETE SET DEFAULT,
-	CONSTRAINT FK_Model_Brand		FOREIGN KEY (Bra_Id)		REFERENCES Brand (Bra_Id) ON DELETE SET DEFAULT,
 	CONSTRAINT UQ_VIN				UNIQUE		(Ord_VIN),
 	CONSTRAINT CH_Price				CHECK		(Ord_Price > 0)
 );
 GO
 
-CREATE TABLE [dbo].[den_OrderHistory]
+CREATE TABLE [Service].[den_OrderHistory]
 (
 	Orh_Id			int				NOT NULL	IDENTITY(1, 1),
+	Sor_id			int				NOT NULL,
 	Emp_Id			int				NOT NULL,
 	Sta_Name		nvarchar(30)	NOT NULL,
 	Orh_Date		datetime		NOT NULL	DEFAULT GETDATE(),
 	Orh_Description	nvarchar(250)	NULL,
-	Ser_Price		money			NOT NULL,
-	Ser_VIN			nchar(17)		NOT NULL,
+	Sor_Price		money			NOT NULL,
+	Sor_VIN			nchar(17)		NOT NULL,
 	Ser_Name		nvarchar(70)	NOT NULL,
 	Ser_ShortName	nvarchar(15)	NOT NULL,
 
 	CONSTRAINT PK_OrderHistory				PRIMARY KEY (Orh_Id),
 	CONSTRAINT FK_OrderHistory_Employee		FOREIGN KEY	(Emp_Id)	REFERENCES [dbo].[den_Employee]		(Emp_Id),
-	CONSTRAINT FK_OrderHistory_Order		FOREIGN KEY	(Ser_VIN)	REFERENCES [dbo].[den_Order]		(Ord_VIN),
+	CONSTRAINT FK_OrderHistory_Order		FOREIGN KEY	(Sor_VIN)	REFERENCES [dbo].[den_Order]		(Ord_VIN),
 );
 GO
 

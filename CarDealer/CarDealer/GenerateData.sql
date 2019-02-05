@@ -287,7 +287,7 @@ WHILE (SELECT COUNT(*) FROM [Service].[Order]) < 100
 		
 		INSERT INTO @modId SELECT TOP 1 Mod_id, Ord_VIN FROM [dbo].[Order] ORDER BY NEWID();
 		
-		INSERT INTO [Service].[Order] ([Mod_Id], [Ser_Id], [Ser_VIN], [Ser_Price])
+		INSERT INTO [Service].[Order] ([Mod_Id], [Ser_Id], [Sor_VIN], [Sor_Price])
 		SELECT 
 			m.Mod_Id,
 			@serId,

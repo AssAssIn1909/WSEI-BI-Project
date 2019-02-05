@@ -8,7 +8,8 @@
     [Ord_IsCompleted]   BIT            DEFAULT ((0)) NOT NULL,
     [Ord_IsPaid]        BIT            DEFAULT ((0)) NOT NULL,
     [Ord_VIN]           NCHAR (17)     DEFAULT (substring(replace(newid(),'-',''),(1),(17))) NOT NULL,
-    [Bra_Id]            INT            DEFAULT ((-1)) NOT NULL,
+    [Bra_FullName]      NVARCHAR (50)  NOT NULL,
+    [Bra_Country]       NVARCHAR (30)  NOT NULL,
     [Mod_Code]          NCHAR (10)     NOT NULL,
     [Mod_Name]          NVARCHAR (250) NOT NULL,
     [Mod_FuelType]      NVARCHAR (20)  NOT NULL,
@@ -21,14 +22,17 @@
     [Pri_DateFrom]      DATE           NOT NULL,
     [Pri_DateTo]        DATE           NULL,
     CONSTRAINT [CH_Price] CHECK ([Ord_Price]>(0)),
-    CONSTRAINT [FK_Model_Brand] FOREIGN KEY ([Bra_Id]) REFERENCES [dbo].[Brand] ([Bra_Id]) ON DELETE SET DEFAULT,
     CONSTRAINT [FK_Order_Client] FOREIGN KEY ([Cli_Id]) REFERENCES [dbo].[den_Client] ([Cli_Id]) ON DELETE SET DEFAULT,
     CONSTRAINT [FK_Order_Employee] FOREIGN KEY ([Emp_Id]) REFERENCES [dbo].[den_Employee] ([Emp_Id]) ON DELETE SET DEFAULT,
     CONSTRAINT [UQ_VIN] UNIQUE NONCLUSTERED ([Ord_VIN] ASC)
 );
 
 
+
+
 GO
 CREATE CLUSTERED COLUMNSTORE INDEX [cci]
     ON [dbo].[den_Order];
+
+
 

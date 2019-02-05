@@ -241,8 +241,8 @@ CREATE TABLE [Service].[Order]
 	Sor_Id		int				NOT NULL	IDENTITY(1, 1),
 	Mod_Id		int				NOT NULL,
 	Ser_Id		int				NOT NULL,
-	Ser_Price	money			NOT NULL,
-	Ser_VIN		nchar(17)		NOT NULL,
+	Sor_Price	money			NOT NULL,
+	Sor_VIN		nchar(17)		NOT NULL,
 
 	
 	CONSTRAINT PK_SerOrder				PRIMARY KEY (Sor_Id),
@@ -377,7 +377,7 @@ CREATE VIEW [rapOp].[v_ServiceCountsWithAvaragePrice] AS
 	SELECT 
 		s.Ser_Name,
 		COUNT(o.Sor_Id) AS [Count],
-		AVG(o.Ser_Price) AS [AvaragePrice]
+		AVG(o.Sor_Price) AS [AvaragePrice]
 	FROM
 		[Service].[Service] AS s WITH (NOLOCK)
 	LEFT JOIN
